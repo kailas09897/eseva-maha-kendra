@@ -51,16 +51,11 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Right Action - Admin / Submit Service CTA */}
+          {/* Desktop Right CTA */}
           <div className="hidden lg:flex items-center gap-3">
             <Link href="/services">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs h-10 px-5 rounded-xl shadow-xs">
                 Apply Service
-              </Button>
-            </Link>
-            <Link href="/admin">
-              <Button variant="outline" className="border-slate-200 text-slate-700 text-xs font-semibold h-10 px-3.5 rounded-xl">
-                <UserCheck className="w-4 h-4 mr-1 text-slate-500" /> Admin Panel
               </Button>
             </Link>
           </div>
@@ -93,11 +88,6 @@ export function Header() {
             <Link href="/services" onClick={() => setMobileMenuOpen(false)}>
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold">
                 Apply for Service
-              </Button>
-            </Link>
-            <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="outline" className="w-full font-semibold">
-                Admin Panel
               </Button>
             </Link>
           </div>
