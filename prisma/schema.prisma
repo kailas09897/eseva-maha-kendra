@@ -1,0 +1,124 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum LeadStatus {
+  NEW
+  UNDER_REVIEW
+  NEED_MORE_INFORMATION
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  services    Service[]
+}
+
+model Service {
+  id             String        @id @default(cuid())
+  categoryId     String
+  category       Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  title          String
+  slug           String        @unique
+  description    String
+  benefits       String[]
+  eligibility    String[]
+  requiredDocs   String[]
+  processingTime String
+  popular        Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  faqs           ServiceFAQ[]
+  leads          Lead[]
+}
+
+model ServiceFAQ {
+  id        String   @id @default(cuid())
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+}
+
+model Lead {
+  id           String         @id @default(cuid())
+  requestId    String         @unique
+  serviceId    String
+  service      Service        @relation(fields: [serviceId], references: [id])
+  fullName     String
+  mobile       String
+  email        String
+  city         String
+  state        String
+  address      String
+  message      String?
+  status       LeadStatus     @default(NEW)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  documents    LeadDocument[]
+}
+
+model LeadDocument {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  docName   String
+  fileUrl   String
+  fileName  String
+  fileSize  Int
+  createdAt DateTime @default(now())
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String?  @default("General")
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  location  String
+  rating    Int      @default(5)
+  review    String
+  avatarUrl String?
+  createdAt DateTime @default(now())
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String
+  content   String
+  author    String   @default("Admin")
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  service   String?
+  message   String
+  createdAt DateTime @default(now())
+}
