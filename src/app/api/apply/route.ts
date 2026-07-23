@@ -24,10 +24,43 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Please fill in all required fields." }, { status: 400 });
     }
 
-    // Retrieve target service from DB
-    const service = await prisma.service.findUnique({
-      where: { id: serviceId }
+    // Retrieve target service from DB by ID or Slug
+    let service = await prisma.service.findFirst({
+      where: {
+        OR: [
+          { id: serviceId },
+          { slug: serviceId }
+        ]
+      }
     });
+
+    // Fallback: If database is empty or missing this service, find from static catalog or auto-create
+    if (!service) {
+      const staticService = (await import("@/lib/constants")).SERVICES_LIST.find(s => s.id === serviceId || s.slug === serviceId);
+      
+      // Ensure a default category exists
+      let category = await prisma.category.findFirst();
+      if (!category) {
+        category = await prisma.category.create({
+          data: {
+            name: "General Services",
+            slug: "general-services",
+            description: "General government and digital services"
+          }
+        });
+      }
+
+      service = await prisma.service.create({
+        data: {
+          title: staticService?.title || serviceId || "Requested Service",
+          slug: staticService?.slug || serviceId.toLowerCase().replace(/\s+/g, "-"),
+          description: staticService?.description || "Service request submission",
+          requiredDocs: staticService?.requiredDocs || ["Aadhaar Card", "PAN Card", "Photo"],
+          processingTime: staticService?.processingTime || "3 - 5 Days",
+          categoryId: category.id
+        }
+      });
+    }
 
     if (!service) {
       return NextResponse.json({ success: false, error: "Selected service not found." }, { status: 404 });
