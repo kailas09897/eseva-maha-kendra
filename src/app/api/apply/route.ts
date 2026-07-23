@@ -81,7 +81,7 @@ export async function POST(req: Request) {
 
         // Store in Vercel Blob if available, fallback to local uploads directory
         if (process.env.BLOB_READ_WRITE_TOKEN) {
-          const blob = await put(`leads/${requestId}/${file.name}`, file, { access: "public" });
+          const blob = await put(`leads/${requestId}/${file.name}`, file, { access: "public", addRandomSuffix: true });
           fileUrl = blob.url;
         } else {
           // Local fallback
